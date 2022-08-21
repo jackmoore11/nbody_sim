@@ -8,9 +8,9 @@ Position and velocity data is written to a csv file on each time step for later 
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#define NUM_PARTICLES 50
 
 //Constant values, dm_mass and epsilon currently chosen to give decent results
-const int n = 50;
 const double dm_mass = 1e6; //kg
 const double G = 6.6743015e-11; //N*m^2/kg^2
 const double epsilon = 1e-1; //m
@@ -45,15 +45,15 @@ int main() {
 	double k4_v;
 
 	//Analysis file
-	FILE *fp;
-    fp = fopen("/Users/jackmoore/Documents/nbody_sim/pos_data.csv", "w+");
+	FILE *fp = NULL;
+    fp = fopen("Data\\pos_data.csv", "w");
     fprintf(fp, "time,particle,px,py,pz,vx,vy,vz\n");
 
-	struct particle particles[n]; //Main struct containing particle data
-	struct particle parts_copy[n]; //Copy of main struct
+	struct particle particles[NUM_PARTICLES]; //Main struct containing particle data
+	struct particle parts_copy[NUM_PARTICLES]; //Copy of main struct
 
 	//Randomly initializing the particles
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < NUM_PARTICLES; i++) {
 		for (int j = 0; j < 3; j++) {
 			particles[i].position[j] = randfrom(-10, 10);
 			particles[i].velocity[j] = randfrom(-1e-7, 1e-7);
@@ -63,8 +63,13 @@ int main() {
 	//Main time loop
 	double t = 0;
 	while (t < tf) {
+		double tMod = fmod(t, 100.0);
+		int tModInt = (int)tMod;
+		if (tModInt == 0) {
+			printf("Time: %f\n", t);
+		}
 		//Dumping data into file on each iteration
-		for (int i=0; i < n; i++) {
+		for (int i=0; i < NUM_PARTICLES; i++) {
             fprintf(fp, "%f,%d,%f,%f,%f,%f,%f,%f\n", t, i, particles[i].position[0],
                     particles[i].position[1], particles[i].position[2], 
                     particles[i].velocity[0], particles[i].velocity[1],
@@ -72,12 +77,12 @@ int main() {
         }
 
 		//Updating copy on each iteration
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < NUM_PARTICLES; i++) {
 			parts_copy[i] = particles[i];
 		}
 
 		//4th order Runge Kutta on each particle-dimension pair
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < NUM_PARTICLES; i++) {
 			for (int j = 0; j < 3; j++) {
 				k1_p = dt*parts_copy[i].velocity[j]; //m
 				k2_p = dt*(parts_copy[i].velocity[j] + 0.5*k1_p);
@@ -101,7 +106,7 @@ int main() {
 	}
 
 	//Final dump for last iteration
-	for (int i=0; i < n; i++) {
+	for (int i=0; i < NUM_PARTICLES; i++) {
         fprintf(fp, "%f,%d,%f,%f,%f,%f,%f,%f\n", t, i, particles[i].position[0],
         	particles[i].position[1], particles[i].position[2], 
             particles[i].velocity[0], particles[i].velocity[1],
@@ -121,10 +126,10 @@ double randfrom(double min, double max) {
 
 //Updates inputs according to the Runge Kutta step and performs acceleration calculation
 double fv(struct particle *parts, double k, double multiplier, int dim, int part_num) {
-	struct particle parts_use[n]; //Copy of the copy
+	struct particle parts_use[NUM_PARTICLES]; //Copy of the copy
 
 	//Updating each particle's position for the Runge Kutta step
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < NUM_PARTICLES; i++) {
 		parts_use[i] = parts[i];
 		parts_use[i].position[dim] = parts[i].position[dim] + k*multiplier;
 	}
@@ -137,7 +142,7 @@ double fv(struct particle *parts, double k, double multiplier, int dim, int part
 double sum_term_func(struct particle *parts, int part_num, int dim) {
 	double sum_term = 0;
 	double numerator;
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < NUM_PARTICLES; i++) {
 		if (i != part_num) {
 			//Calculating distances
 			double dx = parts[part_num].position[0] - parts[i].position[0];

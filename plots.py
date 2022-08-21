@@ -11,7 +11,7 @@ from mpl_toolkits import mplot3d
 from matplotlib import animation
 
 writer_vid = animation.FFMpegWriter(fps=60) #FFMpeg writer to save animations
-data_csv = '/Users/jackmoore/Documents/nbody_sim/pos_data.csv' #Data file from nbody.c
+data_csv = 'Data\\pos_data.csv' #Data file from nbody.c
 
 #Constant values taken from the corresponding run of nbody.c
 tf = 10000
@@ -30,6 +30,7 @@ pos_data = np.empty([time_n, part_n, dim_n])
 time = np.linspace(0, tf, time_n)
 
 #Filling pos_data array with data from the csv
+print('Reading csv')
 with open(data_csv) as f:
     reader = csv.reader(f, delimiter=',') 
     line = 0
@@ -55,33 +56,33 @@ for i in range(part_n):
     label_list.append(str(i))
 
 #Plotting each particle's x position as a function of time
+print('Plotting x postion')
 for i in range(part_n):
     plt.plot(time, pos_data[:,i,0])
 plt.ylim((-100,100))
 plt.xlabel('Time')
 plt.ylabel('px')
-plt.legend(label_list, loc='center left', bbox_to_anchor=(1, 0.5))
-plt.savefig('/Users/jackmoore/Documents/nbody_sim/px.png')
+plt.savefig('Figures\\px.png')
 plt.clf()
 
 #Plotting each particle's y position as a function of time
+print('Plotting y postion')
 for i in range(part_n):
     plt.plot(time, pos_data[:,i,1])
 plt.ylim((-100,100))
 plt.xlabel('Time')
 plt.ylabel('py')
-plt.legend(label_list, loc='center left', bbox_to_anchor=(1, 0.5))
-plt.savefig('/Users/jackmoore/Documents/nbody_sim/py.png')
+plt.savefig('Figures\\py.png')
 plt.clf()
 
 #Plotting each particle's z position as a function of time
+print('Plotting z postion')
 for i in range(part_n):
     plt.plot(time, pos_data[:,i,2])
 plt.ylim((-100,100))
 plt.xlabel('Time')
 plt.ylabel('pz')
-plt.legend(label_list, loc='center left', bbox_to_anchor=(1, 0.5))
-plt.savefig('/Users/jackmoore/Documents/nbody_sim/pz.png')
+plt.savefig('Figures\\pz.png')
 plt.clf()
 
 print('Plots saved')
@@ -132,10 +133,12 @@ def drawframe(t):
     return
 
 #Rendering animation (using 1 out of every 200 time steps)
+print('Creating 2D Animation')
 anim_2d = animation.FuncAnimation(fig, drawframe, frames=range(0, len(pos_data), 200), interval=10, blit=False)
 
 #Saving animation to mp4 file
-anim_2d.save('/Users/jackmoore/Documents/nbody_sim/2d.mp4', writer=writer_vid)
+print('Saving 2D Animation')
+anim_2d.save('Figures\\2d.mp4', writer=writer_vid)
 plt.close()
 
 print('2D animation saved')
@@ -162,10 +165,12 @@ def drawframe_3d(t):
     return
 
 #Rendering animation (using 1 out of every 200 time steps)
+print('Creating 3D Animation')
 anim_3d = animation.FuncAnimation(fig_3d, drawframe_3d, frames=range(0, len(pos_data), 200), interval=10, blit=False)
 
 #Saving animation to mp4 file
-anim_3d.save('/Users/jackmoore/Documents/nbody_sim/3d.mp4', writer=writer_vid)
+print('Saving 3D Animation')
+anim_3d.save('Figures\\3d.mp4', writer=writer_vid)
 plt.close()
 
 print('3D animation saved')
